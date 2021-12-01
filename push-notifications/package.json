@@ -1,5 +1,5 @@
 {
-  "name": "@capacitor/push-notifications",
+  "name": "push-notifications",
   "version": "1.0.7",
   "description": "The Push Notifications API provides access to native push notifications.",
   "main": "dist/plugin.cjs.js",
