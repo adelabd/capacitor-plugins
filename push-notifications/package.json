@@ -1,5 +1,5 @@
 {
-  "name": "push-notifications",
+  "name": "@capacitor/push-notifications",
   "version": "1.0.7",
   "description": "The Push Notifications API provides access to native push notifications.",
   "main": "dist/plugin.cjs.js",
@@ -42,7 +42,6 @@
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
     "prepublishOnly": "npm run build",
-    "prepare": "npm run build",
     "publish:cocoapod": "pod trunk push ./CapacitorPushNotifications.podspec --allow-warnings"
   },
   "devDependencies": {
