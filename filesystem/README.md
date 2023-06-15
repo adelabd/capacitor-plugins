@@ -9,6 +9,15 @@ npm install @capacitor/filesystem
 npx cap sync
 ```
 
+## iOS
+
+To have files appear in the Files app, you must set the following keys to `YES` in `Info.plist`:
+
+- `UIFileSharingEnabled` (`Application supports iTunes file sharing`)
+- `LSSupportsOpeningDocumentsInPlace` (`Supports opening documents in place`)
+
+Read about [Configuring iOS](https://capacitorjs.com/docs/ios/configuration) for help.
+
 ## Android
 
 If using <a href="#directory">`Directory.Documents`</a> or
@@ -24,6 +33,8 @@ Read about [Setting Permissions](https://capacitorjs.com/docs/android/configurat
 Note that <a href="#directory">`Directory.Documents`</a> and
 `Directory.ExternalStorage` are only available on Android 9 or older.
 
+Working with large files may require you to add `android:largeHeap="true"` to the `<application>` tag in `AndroidManifest.xml`.
+
 ## Understanding Directories and Files
 
 iOS and Android have additional layers of separation between files, such as special directories that are backed up to the Cloud, or ones for storing Documents. The Filesystem API offers a simple way to scope each operation to a specific special directory on the device.
@@ -38,7 +49,7 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 const writeSecretFile = async () => {
   await Filesystem.writeFile({
     path: 'secrets/text.txt',
-    data: "This is a test",
+    data: 'This is a test',
     directory: Directory.Documents,
     encoding: Encoding.UTF8,
   });
@@ -66,7 +77,7 @@ const readFilePath = async () => {
   // read binary data (base64 encoded) from plugins that return File URIs, such as
   // the Camera.
   const contents = await Filesystem.readFile({
-    path: 'file:///var/mobile/Containers/Data/Application/22A433FD-D82D-4989-8BE6-9FC49DEA20BB/Documents/text.txt'
+    path: 'file:///var/mobile/Containers/Data/Application/22A433FD-D82D-4989-8BE6-9FC49DEA20BB/Documents/text.txt',
   });
 
   console.log('data:', contents);
@@ -282,7 +293,7 @@ Rename a file or directory
 ### copy(...)
 
 ```typescript
-copy(options: CopyOptions) => Promise<void>
+copy(options: CopyOptions) => Promise<CopyResult>
 ```
 
 Copy a file or directory
@@ -290,6 +301,8 @@ Copy a file or directory
 | Param         | Type                                                |
 | ------------- | --------------------------------------------------- |
 | **`options`** | <code><a href="#copyoptions">CopyOptions</a></code> |
+
+**Returns:** <code>Promise&lt;<a href="#copyresult">CopyResult</a>&gt;</code>
 
 **Since:** 1.0.0
 
@@ -405,9 +418,21 @@ Required on Android, only when using <a href="#directory">`Directory.Documents`<
 
 #### ReaddirResult
 
-| Prop        | Type                  | Description                                        | Since |
-| ----------- | --------------------- | -------------------------------------------------- | ----- |
-| **`files`** | <code>string[]</code> | List of files and directories inside the directory | 1.0.0 |
+| Prop        | Type                    | Description                                        | Since |
+| ----------- | ----------------------- | -------------------------------------------------- | ----- |
+| **`files`** | <code>FileInfo[]</code> | List of files and directories inside the directory | 1.0.0 |
+
+
+#### FileInfo
+
+| Prop        | Type                               | Description                                                                          | Since |
+| ----------- | ---------------------------------- | ------------------------------------------------------------------------------------ | ----- |
+| **`name`**  | <code>string</code>                | Name of the file or directory.                                                       |       |
+| **`type`**  | <code>'directory' \| 'file'</code> | Type of the file.                                                                    | 4.0.0 |
+| **`size`**  | <code>number</code>                | Size of the file in bytes.                                                           | 4.0.0 |
+| **`ctime`** | <code>number</code>                | Time of creation in milliseconds. It's not available on Android 7 and older devices. | 4.0.0 |
+| **`mtime`** | <code>number</code>                | Time of last modification in milliseconds.                                           | 4.0.0 |
+| **`uri`**   | <code>string</code>                | The uri of the file.                                                                 | 4.0.0 |
 
 
 #### ReaddirOptions
@@ -435,13 +460,13 @@ Required on Android, only when using <a href="#directory">`Directory.Documents`<
 
 #### StatResult
 
-| Prop        | Type                | Description                                                                          | Since |
-| ----------- | ------------------- | ------------------------------------------------------------------------------------ | ----- |
-| **`type`**  | <code>string</code> | Type of the file                                                                     | 1.0.0 |
-| **`size`**  | <code>number</code> | Size of the file                                                                     | 1.0.0 |
-| **`ctime`** | <code>number</code> | Time of creation in milliseconds. It's not available on Android 7 and older devices. | 1.0.0 |
-| **`mtime`** | <code>number</code> | Time of last modification in milliseconds.                                           | 1.0.0 |
-| **`uri`**   | <code>string</code> | The uri of the file                                                                  | 1.0.0 |
+| Prop        | Type                               | Description                                                                          | Since |
+| ----------- | ---------------------------------- | ------------------------------------------------------------------------------------ | ----- |
+| **`type`**  | <code>'directory' \| 'file'</code> | Type of the file.                                                                    | 1.0.0 |
+| **`size`**  | <code>number</code>                | Size of the file in bytes.                                                           | 1.0.0 |
+| **`ctime`** | <code>number</code>                | Time of creation in milliseconds. It's not available on Android 7 and older devices. | 1.0.0 |
+| **`mtime`** | <code>number</code>                | Time of last modification in milliseconds.                                           | 1.0.0 |
+| **`uri`**   | <code>string</code>                | The uri of the file                                                                  | 1.0.0 |
 
 
 #### StatOptions
@@ -460,6 +485,13 @@ Required on Android, only when using <a href="#directory">`Directory.Documents`<
 | **`to`**          | <code>string</code>                             | The destination file or directory                                                                                                                            | 1.0.0 |
 | **`directory`**   | <code><a href="#directory">Directory</a></code> | The <a href="#directory">`Directory`</a> containing the existing file or directory                                                                           | 1.0.0 |
 | **`toDirectory`** | <code><a href="#directory">Directory</a></code> | The <a href="#directory">`Directory`</a> containing the destination file or directory. If not supplied will use the 'directory' parameter as the destination | 1.0.0 |
+
+
+#### CopyResult
+
+| Prop      | Type                | Description                            | Since |
+| --------- | ------------------- | -------------------------------------- | ----- |
+| **`uri`** | <code>string</code> | The uri where the file was copied into | 4.0.0 |
 
 
 #### PermissionStatus
@@ -490,7 +522,8 @@ Required on Android, only when using <a href="#directory">`Directory.Documents`<
 | Members               | Value                           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                       | Since |
 | --------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
 | **`Documents`**       | <code>'DOCUMENTS'</code>        | The Documents directory On iOS it's the app's documents directory. Use this directory to store user-generated content. On Android it's the Public Documents folder, so it's accessible from other apps. It's not accesible on Android 10 unless the app enables legacy External Storage by adding `android:requestLegacyExternalStorage="true"` in the `application` tag in the `AndroidManifest.xml`. It's not accesible on Android 11 or newer. | 1.0.0 |
-| **`Data`**            | <code>'DATA'</code>             | The Data directory On iOS it will use the Documents directory On Android it's the directory holding application files. Files will be deleted when the application is uninstalled.                                                                                                                                                                                                                                                                 | 1.0.0 |
+| **`Data`**            | <code>'DATA'</code>             | The Data directory On iOS it will use the Documents directory. On Android it's the directory holding application files. Files will be deleted when the application is uninstalled.                                                                                                                                                                                                                                                                | 1.0.0 |
+| **`Library`**         | <code>'LIBRARY'</code>          | The Library directory On iOS it will use the Library directory. On Android it's the directory holding application files. Files will be deleted when the application is uninstalled.                                                                                                                                                                                                                                                               | 1.1.0 |
 | **`Cache`**           | <code>'CACHE'</code>            | The Cache directory Can be deleted in cases of low memory, so use this directory to write app-specific files that your app can re-create easily.                                                                                                                                                                                                                                                                                                  | 1.0.0 |
 | **`External`**        | <code>'EXTERNAL'</code>         | The external directory On iOS it will use the Documents directory On Android it's the directory on the primary shared/external storage device where the application can place persistent files it owns. These files are internal to the applications, and not typically visible to the user as media. Files will be deleted when the application is uninstalled.                                                                                  | 1.0.0 |
 | **`ExternalStorage`** | <code>'EXTERNAL_STORAGE'</code> | The external storage directory On iOS it will use the Documents directory On Android it's the primary shared/external storage directory. It's not accesible on Android 10 unless the app enables legacy External Storage by adding `android:requestLegacyExternalStorage="true"` in the `application` tag in the `AndroidManifest.xml`. It's not accesible on Android 11 or newer.                                                                | 1.0.0 |

@@ -8,7 +8,7 @@ public class DevicePlugin: CAPPlugin {
     @objc func getId(_ call: CAPPluginCall) {
         if let uuid = UIDevice.current.identifierForVendor {
             call.resolve([
-                "uuid": uuid.uuidString
+                "identifier": uuid.uuidString
             ])
         } else {
             call.reject("Id not available")
@@ -16,14 +16,19 @@ public class DevicePlugin: CAPPlugin {
     }
     @objc func getInfo(_ call: CAPPluginCall) {
         var isSimulator = false
-        #if arch(i386) || arch(x86_64)
+        var modelName = ""
+        #if targetEnvironment(simulator)
         isSimulator = true
+        modelName = ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] ?? "Simulator"
+        #else
+        modelName = implementation.getModelName()
         #endif
 
         let memUsed = implementation.getMemoryUsage()
         let diskFree = implementation.getFreeDiskSize() ?? 0
         let realDiskFree = implementation.getRealFreeDiskSize() ?? 0
         let diskTotal = implementation.getTotalDiskSize() ?? 0
+        let systemVersionNum = implementation.getSystemVersionInt() ?? 0
 
         call.resolve([
             "memUsed": memUsed,
@@ -32,9 +37,10 @@ public class DevicePlugin: CAPPlugin {
             "realDiskFree": realDiskFree,
             "realDiskTotal": diskTotal,
             "name": UIDevice.current.name,
-            "model": UIDevice.current.model,
+            "model": modelName,
             "operatingSystem": "ios",
             "osVersion": UIDevice.current.systemVersion,
+            "iOSVersion": systemVersionNum,
             "platform": "ios",
             "manufacturer": "Apple",
             "isVirtual": isSimulator,
@@ -57,6 +63,13 @@ public class DevicePlugin: CAPPlugin {
         let code = implementation.getLanguageCode()
         call.resolve([
             "value": code
+        ])
+    }
+
+    @objc func getLanguageTag(_ call: CAPPluginCall) {
+        let tag = implementation.getLanguageTag()
+        call.resolve([
+            "value": tag
         ])
     }
 

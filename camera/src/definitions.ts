@@ -31,6 +31,21 @@ export interface CameraPlugin {
   pickImages(options: GalleryImageOptions): Promise<GalleryPhotos>;
 
   /**
+   * iOS 14+ Only: Allows the user to update their limited photo library selection.
+   * On iOS 15+ returns all the limited photos after the picker dismissal.
+   * On iOS 14 or if the user gave full access to the photos it returns an empty array.
+   *
+   * @since 4.1.0
+   */
+  pickLimitedLibraryPhotos(): Promise<GalleryPhotos>;
+  /**
+   * iOS 14+ Only: Return an array of photos selected from the limited photo library.
+   *
+   * @since 4.1.0
+   */
+  getLimitedLibraryPhotos(): Promise<GalleryPhotos>;
+
+  /**
    * Check camera and photo album permissions
    *
    * @since 1.0.0
@@ -50,12 +65,14 @@ export interface CameraPlugin {
 export interface ImageOptions {
   /**
    * The quality of image to return as JPEG, from 0-100
+   * Note: This option is only supported on Android and iOS
    *
    * @since 1.0.0
    */
   quality?: number;
   /**
-   * Whether to allow the user to crop or make small edits (platform specific)
+   * Whether to allow the user to crop or make small edits (platform specific).
+   * On iOS 14+ it's only supported for CameraSource.Camera, but not for CameraSource.Photos.
    *
    * @since 1.0.0
    */
@@ -75,25 +92,17 @@ export interface ImageOptions {
    */
   saveToGallery?: boolean;
   /**
-   * The width of the saved image
+   * The desired maximum width of the saved image. The aspect ratio is respected.
    *
    * @since 1.0.0
    */
   width?: number;
   /**
-   * The height of the saved image
+   * The desired maximum height of the saved image. The aspect ratio is respected.
    *
    * @since 1.0.0
    */
   height?: number;
-  /**
-   * This setting has no effect.
-   * Picture resizing always preserve aspect ratio.
-   *
-   * @deprecated will be removed in next major version.
-   * @since 1.0.0
-   */
-  preserveAspectRatio?: boolean;
   /**
    * Whether to automatically rotate the image "up" to correct for orientation
    * in portrait mode
@@ -131,7 +140,7 @@ export interface ImageOptions {
    * default is to use PWA Elements if installed and fall back to file input.
    * To always use file input, set this to `true`.
    *
-   * Learn more about PWA Elements: https://capacitorjs.com/docs/pwa-elements
+   * Learn more about PWA Elements: https://capacitorjs.com/docs/web/pwa-elements
    *
    * @since 1.0.0
    */
@@ -184,12 +193,13 @@ export interface Photo {
   /**
    * The url starting with 'data:image/jpeg;base64,' and the base64 encoded string representation of the image, if using CameraResultType.DataUrl.
    *
+   * Note: On web, the file format could change depending on the browser.
    * @since 1.0.0
    */
   dataUrl?: string;
   /**
    * If using CameraResultType.Uri, the path will contain a full,
-   * platform-specific file URL that can be read later using the Filsystem API.
+   * platform-specific file URL that can be read later using the Filesystem API.
    *
    * @since 1.0.0
    */
@@ -211,7 +221,8 @@ export interface Photo {
    * The format of the image, ex: jpeg, png, gif.
    *
    * iOS and Android only support jpeg.
-   * Web supports jpeg and png. gif is only supported if using file input.
+   * Web supports jpeg, png and gif, but the exact availability may vary depending on the browser.
+   * gif is only supported if `webUseInput` is set to `true` or if `source` is set to `Photos`.
    *
    * @since 1.0.0
    */
@@ -239,7 +250,7 @@ export interface GalleryPhotos {
 
 export interface GalleryPhoto {
   /**
-   * Full, platform-specific file URL that can be read later using the Filsystem API.
+   * Full, platform-specific file URL that can be read later using the Filesystem API.
    *
    * @since 1.2.0
    */
@@ -270,18 +281,19 @@ export interface GalleryPhoto {
 export interface GalleryImageOptions {
   /**
    * The quality of image to return as JPEG, from 0-100
+   * Note: This option is only supported on Android and iOS.
    *
    * @since 1.2.0
    */
   quality?: number;
   /**
-   * The width of the saved image
+   * The desired maximum width of the saved image. The aspect ratio is respected.
    *
    * @since 1.2.0
    */
   width?: number;
   /**
-   * The height of the saved image
+   * The desired maximum height of the saved image. The aspect ratio is respected.
    *
    * @since 1.2.0
    */
@@ -322,7 +334,7 @@ export enum CameraSource {
    */
   Camera = 'CAMERA',
   /**
-   * Pick an existing photo fron the gallery or photo album.
+   * Pick an existing photo from the gallery or photo album.
    */
   Photos = 'PHOTOS',
 }

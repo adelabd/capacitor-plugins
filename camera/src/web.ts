@@ -56,6 +56,8 @@ export class CameraWeb extends WebPlugin implements CameraPlugin {
   ) {
     if (customElements.get('pwa-camera-modal')) {
       const cameraModal: any = document.createElement('pwa-camera-modal');
+      cameraModal.facingMode =
+        options.direction === CameraDirection.Front ? 'user' : 'environment';
       document.body.appendChild(cameraModal);
       try {
         await cameraModal.componentOnReady();
@@ -80,7 +82,7 @@ export class CameraWeb extends WebPlugin implements CameraPlugin {
       }
     } else {
       console.error(
-        `Unable to load PWA Element 'pwa-camera-modal'. See the docs: https://capacitorjs.com/docs/pwa-elements.`,
+        `Unable to load PWA Element 'pwa-camera-modal'. See the docs: https://capacitorjs.com/docs/web/pwa-elements.`,
       );
       this.fileInputExperience(options, resolve);
     }
@@ -265,6 +267,14 @@ export class CameraWeb extends WebPlugin implements CameraPlugin {
 
   async requestPermissions(): Promise<PermissionStatus> {
     throw this.unimplemented('Not implemented on web.');
+  }
+
+  async pickLimitedLibraryPhotos(): Promise<GalleryPhotos> {
+    throw this.unavailable('Not implemented on web.');
+  }
+
+  async getLimitedLibraryPhotos(): Promise<GalleryPhotos> {
+    throw this.unavailable('Not implemented on web.');
   }
 }
 

@@ -26,9 +26,9 @@ declare module '@capacitor/cli' {
        * Only available on iOS.
        *
        * @since 1.0.0
-       * @example "dark"
+       * @example "DARK"
        */
-      style?: 'dark' | 'light';
+      style?: KeyboardStyle;
 
       /**
        * There is an Android bug that prevents the keyboard from resizing the WebView
@@ -187,7 +187,18 @@ export interface KeyboardPlugin {
   setResizeMode(options: KeyboardResizeOptions): Promise<void>;
 
   /**
+   * Get the currently set resize mode.
+   *
+   * This method is only supported on iOS.
+   *
+   * @since 4.0.0
+   */
+  getResizeMode(): Promise<KeyboardResizeOptions>;
+
+  /**
    * Listen for when the keyboard is about to be shown.
+   *
+   * On Android keyboardWillShow and keyboardDidShow fire almost at the same time.
    *
    * @since 1.0.0
    */
@@ -199,6 +210,8 @@ export interface KeyboardPlugin {
   /**
    * Listen for when the keyboard is shown.
    *
+   * On Android keyboardWillShow and keyboardDidShow fire almost at the same time.
+   *
    * @since 1.0.0
    */
   addListener(
@@ -209,6 +222,8 @@ export interface KeyboardPlugin {
   /**
    * Listen for when the keyboard is about to be hidden.
    *
+   * On Android keyboardWillHide and keyboardDidHide fire almost at the same time.
+   *
    * @since 1.0.0
    */
   addListener(
@@ -218,6 +233,8 @@ export interface KeyboardPlugin {
 
   /**
    * Listen for when the keyboard is hidden.
+   *
+   * On Android keyboardWillHide and keyboardDidHide fire almost at the same time.
    *
    * @since 1.0.0
    */
